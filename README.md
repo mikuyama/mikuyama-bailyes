@@ -185,10 +185,6 @@ npm install socketon
 
 ### Install dari GitHub Repository Ini
 
-Kalau ingin memakai versi dari repository ini langsung di project bot kamu, gunakan salah satu format di bawah.
-
-#### Rekomendasi paling aman
-
 ```json
 {
   "dependencies": {
@@ -203,7 +199,22 @@ Lalu jalankan:
 npm install
 ```
 
-#### Alternatif format dependency yang juga bisa dipakai
+Atau langsung lewat command:
+
+```bash
+npm install socketon@git+https://github.com/mikuyama/mikuyama-bailyes.git#main
+```
+
+Cara import tetap sama:
+
+```js
+const { makeWASocket, useMultiFileAuthState, DisconnectReason } = require('socketon')
+```
+
+<details>
+<summary><b>📖 Klik untuk lihat panduan instalasi lengkap</b></summary>
+
+### Format dependency lain yang bisa dipakai
 
 ```json
 "socketon": "github:mikuyama/mikuyama-bailyes"
@@ -229,7 +240,7 @@ npm install
 "socketon": "mikuyama/mikuyama-bailyes"
 ```
 
-#### Install langsung lewat command
+### Install langsung lewat command
 
 ```bash
 npm install socketon@git+https://github.com/mikuyama/mikuyama-bailyes.git#main
@@ -247,7 +258,7 @@ Atau:
 npm install mikuyama/mikuyama-bailyes
 ```
 
-#### Kunci ke commit tertentu
+### Kunci ke commit tertentu
 
 Kalau ingin versi tidak berubah walaupun branch `main` update, pakai commit SHA:
 
@@ -255,13 +266,13 @@ Kalau ingin versi tidak berubah walaupun branch `main` update, pakai commit SHA:
 "socketon": "github:mikuyama/mikuyama-bailyes#5a74c77921eba6ff7df1da244cddeccff746cbc3"
 ```
 
-#### Tarball GitHub
+### Tarball GitHub
 
 ```json
 "socketon": "https://github.com/mikuyama/mikuyama-bailyes/archive/refs/heads/main.tar.gz"
 ```
 
-#### Contoh ubah dependency lama
+### Contoh ubah dependency lama
 
 Jika project kamu sebelumnya memakai:
 
@@ -281,11 +292,7 @@ Setelah itu hapus install lama dan install ulang:
 rm -rf node_modules package-lock.json && npm install
 ```
 
-Cara import di kode tetap sama:
-
-```js
-const { makeWASocket, useMultiFileAuthState, DisconnectReason } = require('socketon')
-```
+</details>
 
 <br/>
 
