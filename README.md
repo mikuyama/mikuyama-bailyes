@@ -183,6 +183,110 @@ npm install socketon
 
 > ⚡ **Persyaratan:** Node.js `20` · `21` · `22` · `23` · `24` (LTS & Current)
 
+### Install dari GitHub Repository Ini
+
+Kalau ingin memakai versi dari repository ini langsung di project bot kamu, gunakan salah satu format di bawah.
+
+#### Rekomendasi paling aman
+
+```json
+{
+  "dependencies": {
+    "socketon": "git+https://github.com/mikuyama/mikuyama-bailyes.git#main"
+  }
+}
+```
+
+Lalu jalankan:
+
+```bash
+npm install
+```
+
+#### Alternatif format dependency yang juga bisa dipakai
+
+```json
+"socketon": "github:mikuyama/mikuyama-bailyes"
+```
+
+```json
+"socketon": "github:mikuyama/mikuyama-bailyes#main"
+```
+
+```json
+"socketon": "git+https://github.com/mikuyama/mikuyama-bailyes.git"
+```
+
+```json
+"socketon": "git+https://github.com/mikuyama/mikuyama-bailyes.git#main"
+```
+
+```json
+"socketon": "https://github.com/mikuyama/mikuyama-bailyes.git"
+```
+
+```json
+"socketon": "mikuyama/mikuyama-bailyes"
+```
+
+#### Install langsung lewat command
+
+```bash
+npm install socketon@git+https://github.com/mikuyama/mikuyama-bailyes.git#main
+```
+
+Atau:
+
+```bash
+npm install socketon@github:mikuyama/mikuyama-bailyes
+```
+
+Atau:
+
+```bash
+npm install mikuyama/mikuyama-bailyes
+```
+
+#### Kunci ke commit tertentu
+
+Kalau ingin versi tidak berubah walaupun branch `main` update, pakai commit SHA:
+
+```json
+"socketon": "github:mikuyama/mikuyama-bailyes#5a74c77921eba6ff7df1da244cddeccff746cbc3"
+```
+
+#### Tarball GitHub
+
+```json
+"socketon": "https://github.com/mikuyama/mikuyama-bailyes/archive/refs/heads/main.tar.gz"
+```
+
+#### Contoh ubah dependency lama
+
+Jika project kamu sebelumnya memakai:
+
+```json
+"socketon": "github:hitlabmodv2/bailyeswily"
+```
+
+Ganti menjadi:
+
+```json
+"socketon": "git+https://github.com/mikuyama/mikuyama-bailyes.git#main"
+```
+
+Setelah itu hapus install lama dan install ulang:
+
+```bash
+rm -rf node_modules package-lock.json && npm install
+```
+
+Cara import di kode tetap sama:
+
+```js
+const { makeWASocket, useMultiFileAuthState, DisconnectReason } = require('socketon')
+```
+
 <br/>
 
 ## ⚡ Quick Start
