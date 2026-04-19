@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socketon - WhatsApp API Library</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div>
+            <div class="nav-brand">
+                <span class="logo">Socketon</span>
+                <span class="version">v1.8.26</span>
+            </div>
+<div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="api.html">API</a>
+                <a href="examples.html">Examples</a>
+                <a href="docs.html">Docs</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Socketon</h1>
+                <p class="tagline">WhatsApp API for Node.js</p>
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap;">
+                    <a href="#install" class="btn btn-primary">Install</a>
+                    <a href="api.html" class="btn btn-secondary">Documentation</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="number">100K+</div>
+                        <div class="label">Downloads</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">500+</div>
+                        <div class="label">Methods</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">1.8.26</div>
+                        <div class="label">Version</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number">MIT</div>
+                        <div class="label">License</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="install" class="section">
+            <div class="container">
+                <h2>Install</h2>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>bash</span>
+                        <button onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>npm install socketon</code></pre>
+                </div>
+                <div class="note">
+                    <strong>Requirements:</strong> Node.js >= 20.0.0
+                </div>
+            </div>
+        </section>
+
+        <section id="quickstart" class="section">
+            <div class="container">
+                <h2>Quick Start</h2>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>javascript</span>
+                        <button onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>const { makeWASocket, useMultiFileAuthState, DisconnectReason } = require('socketon');
+const pino = require('pino');
+
+async function start() {
+    const { state, saveCreds } = await useMultiFileAuthState('./auth');
+    
+    const sock = makeWASocket({
+        logger: pino({ level: 'silent' }),
+        auth: state,
+        printQRInTerminal: true
+    });
+
+    sock.ev.on('connection.update', async (update) => {
+        const { connection, lastDisconnect } = update;
+        if (connection === 'close') {
+            const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
+            if (shouldReconnect) start();
+        } else if (connection === 'open') {
+            console.log('Connected!');
+        }
+    });
+
+    sock.ev.on('messages.upsert', async ({ messages }) => {
+        const msg = messages[0];
+        if (!msg.key.fromMe && msg.message) {
+            console.log('Message:', msg.message.conversation || msg.message.extendedTextMessage?.text);
+        }
+    });
+
+    sock.ev.on('creds.update', saveCreds);
+}
+
+start();</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="section">
+            <div class="container">
+                <h2>Features</h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3>Messages</h3>
+                        <ul>
+                            <li>Send text, image, video, audio</li>
+                            <li>Send document, sticker</li>
+                            <li>Buttons, list, template</li>
+                            <li>React, reply, forward</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Groups</h3>
+                        <ul>
+                            <li>Create, leave, delete</li>
+                            <li>Add/remove participants</li>
+                            <li>Promote/demote admin</li>
+                            <li>Invite link management</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Newsletter</h3>
+                        <ul>
+                            <li>Create newsletter</li>
+                            <li>Follow/unfollow</li>
+                            <li>Send message</li>
+                            <li>Auto react</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Profile</h3>
+                        <ul>
+                            <li>Update name, picture</li>
+                            <li>Privacy settings</li>
+                            <li>Block/unblock</li>
+                            <li>Business profile</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Media</h3>
+                        <ul>
+                            <li>Upload to server</li>
+                            <li>Download message</li>
+                            <li>Link preview</li>
+                            <li>Thumbnail generation</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Calls</h3>
+                        <ul>
+                            <li>Make call</li>
+                            <li>Reject call</li>
+                            <li>Handle incoming</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="developer" class="section">
+            <div class="container">
+                <h2>Developer</h2>
+                <div class="developer-card">
+                    <img src="https://avatars.githubusercontent.com/u/244273660?s=400&u=0616c8fe23d4144e8f87ddac651a38ef2cf04b80&v=4" alt="Bang Wilykun" class="developer-avatar">
+                    <div class="developer-info">
+                        <h4>Bang Wilykun</h4>
+                        <p class="developer-title">Creator & Maintainer</p>
+                        <p class="developer-desc">Full-stack developer with expertise in WhatsApp API, Node.js, and automation. Building Socketon since 2024.</p>
+                        <div class="developer-links">
+                            <a href="https://github.com/BangWilykun" target="_blank" class="dev-link">GitHub</a>
+                            <a href="https://wa.me/6289688206739" target="_blank" class="dev-link">Website</a>
+                            <a href="https://wa.me/6289688206739" target="_blank" class="dev-link">WhatsApp</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="links" class="section">
+            <div class="container">
+                <h2>Links</h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3>Socketon</h3>
+                        <ul>
+                            <li><a href="https://socketon.vercel.app" target="_blank">Website</a></li>
+                            <li><a href="https://www.npmjs.com/package/socketon" target="_blank">NPM</a></li>
+                            <li><a href="https://github.com/BangWilykun/socketon" target="_blank">GitHub</a></li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Support</h3>
+                        <ul>
+                            <li><a href="https://wa.me/6289688206739" target="_blank">WhatsApp</a></li>
+                            <li><a href="#donation">Donate</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-brand">
+                <div class="logo">Socketon</div>
+                <p>WhatsApp API Library</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Docs</h4>
+                    <ul>
+                        <li><a href="api.html">API</a></li>
+                        <li><a href="examples.html">Examples</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Links</h4>
+                    <ul>
+                        <li><a href="https://github.com/BangWilykun/socketon">GitHub</a></li>
+                        <li><a href="https://www.npmjs.com/package/socketon">NPM</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Bang Wilykun</p>
+        </div>
+    </footer>
+
+    <script src="assets/main.js"></script>
+</body>
+</html>

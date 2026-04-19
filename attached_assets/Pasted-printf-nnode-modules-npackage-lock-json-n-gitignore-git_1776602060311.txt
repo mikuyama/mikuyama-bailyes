@@ -1,0 +1,27 @@
+printf "\nnode_modules/\npackage-lock.json\n" >> .gitignore && git config user.name "mikuyama" && git config user.email "mikuyama@users.noreply.github.com" && git remote set-url origin "https://mikuyama:${GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/mikuyama/mikuyama-bailyes.git" 2>/dev/null || git remote add origin "https://mikuyama:${GITHUB_PERSONAL_ACCESS_TOKEN}@github.com/mikuyama/mikuyama-bailyes.git"; git rm -r --cached --ignore-unmatch node_modules package-lock.json; git add -A -- . ':!node_modules/**' ':!package-lock.json'; git commit -m "Initial upload"; git branch -M main; git push -u origin main
+rm 'package-lock.json'
+The following paths are ignored by one of your .gitignore files:
+node_modules
+package-lock.json
+hint: Use -f if you really want to add them.
+hint: Disable this message with "git config set advice.addIgnoredFile false"
+[main 7e2abf3] Initial upload
+ 2 files changed, 3 insertions(+), 15841 deletions(-)
+ delete mode 100644 package-lock.json
+To https://github.com/mikuyama/mikuyama-bailyes.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/mikuyama/mikuyama-bailyes.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.
+~/workspace$ git branch -M main && git push -u origin main
+To https://github.com/mikuyama/mikuyama-bailyes.git
+ ! [rejected]        main -> main (fetch first)
+error: failed to push some refs to 'https://github.com/mikuyama/mikuyama-bailyes.git'
+hint: Updates were rejected because the remote contains work that you do not
+hint: have locally. This is usually caused by another repository pushing to
+hint: the same ref. If you want to integrate the remote changes, use
+hint: 'git pull' before pushing again.
+hint: See the 'Note about fast-forwards' in 'git push --help' for details.

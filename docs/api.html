@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference - Socketon</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div>
+            <div class="nav-brand">
+                <span class="logo">Socketon</span>
+                <span class="version">v1.8.26</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="api.html" class="active">API</a>
+                <a href="examples.html">Examples</a>
+                <a href="docs.html">Docs</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="section">
+            <div class="container">
+                <h1>API Reference</h1>
+                <p style="color: var(--text-muted); margin-top: 0.5rem;">Methods, events, and configuration</p>
+
+                <h2>Imports</h2>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>javascript</span>
+                    </div>
+                    <pre><code>const {
+    makeWASocket,
+    useMultiFileAuthState,
+    useSingleFileAuthState,
+    DisconnectReason,
+    MessageRetryMap,
+    fetchLatestBaileysVersion,
+    DEFAULT_CONNECTION_CONFIG,
+    Browsers
+} = require('socketon');</code></pre>
+                </div>
+
+                <h2>Connection</h2>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>javascript</span>
+                        <button onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>const { makeWASocket, useMultiFileAuthState, DisconnectReason } = require('socketon');
+const pino = require('pino');
+
+async function startBot() {
+    const { state, saveCreds } = await useMultiFileAuthState('./auth');
+    
+    const sock = makeWASocket({
+        logger: pino({ level: 'silent' }),
+        auth: state,
+        printQRInTerminal: true,
+        browser: Browsers('Chrome'),
+        connectTimeoutMs: 60000,
+    });
+
+    sock.ev.on('connection.update', (update) => {
+        const { connection, lastDisconnect, qr } = update;
+        if (qr) console.log('QR:', qr);
+        if (connection === 'close') {
+            const reason = lastDisconnect?.error?.output?.statusCode;
+            if (reason !== DisconnectReason.loggedOut) startBot();
+        }
+    });
+
+    sock.ev.on('creds.update', saveCreds);
+}</code></pre>
+                </div>
+
+                <h2>Send Message</h2>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>javascript</span>
+                        <button onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>// Text
+await sock.sendMessage('628xxxx@s.whatsapp.net', { text: 'Hello!' });
+
+// Image
+await sock.sendMessage('628xxxx@s.whatsapp.net', {
+    image: { url: 'https://example.com/image.jpg' },
+    caption: 'Caption'
+});
+
+// Video
+await sock.sendMessage('628xxxx@s.whatsapp.net', {
+    video: { url: 'https://example.com/video.mp4' },
+    caption: 'Caption'
+});
+
+// Audio
+await sock.sendMessage('628xxxx@s.whatsapp.net', {
+    audio: { url: 'https://example.com/audio.mp3' }
+});
+
+// Document
+await sock.sendMessage('628xxxx@s.whatsapp.net', {
+    document: { url: 'https://example.com/file.pdf' },
+    fileName: 'file.pdf'
+});
+
+// Sticker
+await sock.sendMessage('628xxxx@s.whatsapp.net', {
+    sticker: { url: 'https://example.com/sticker.webp' }
+});
+
+// Location
+await sock.sendMessage('628xxxx@s.whatsapp.net', {
+    location: { degreesLatitude: -6.2, degreesLongitude: 106.8 }
+});
+
+// Contact
+await sock.sendMessage('628xxxx@s.whatsapp.net', {
+    contacts: {
+        contacts: [{
+            displayName: 'John',
+            contacts: [{ waid: '628xxxx', phone: '628xxxx' }]
+        }]
+    }
+});</code></pre>
+                </div>
+
+                <h2>Reply</h2>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>javascript</span>
+                        <button onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>sock.ev.on('messages.upsert', async ({ messages }) => {
+    const msg = messages[0];
+    if (!msg.key.fromMe && msg.message) {
+        // Reply text
+        await sock.sendMessage(msg.key.remoteJid, {
+            text: 'Reply message'
+        }, { quoted: msg });
+        
+        // Reply with media
+        await sock.sendMessage(msg.key.remoteJid, {
+            image: { url: 'https://example.com/image.jpg' }
+        }, { quoted: msg });
+    }
+});</code></pre>
+                </div>
+
+                <h2>React & Forward</h2>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>javascript</span>
+                        <button onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>// React
+await sock.sendMessage('628xxxx@s.whatsapp.net', {
+    react: { key: msg.key, text: '👍' }
+});
+
+// Forward
+await sock.sendMessage('target@s.whatsapp.net', {
+    forward: msg
+});
+
+// Delete
+await sock.sendMessage('628xxxx@s.whatsapp.net', {
+    delete: msg.key
+});</code></pre>
+                </div>
+
+                <h2>Groups</h2>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>javascript</span>
+                        <button onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>// Create
+const group = await sock.groupCreate('Group Name', ['628xxxx@s.whatsapp.net']);
+
+// Add
+await sock.groupParticipantsUpdate('group@s.whatsapp.net', ['628xxxx@s.whatsapp.net'], 'add');
+
+// Remove
+await sock.groupParticipantsUpdate('group@s.whatsapp.net', ['628xxxx@s.whatsapp.net'], 'remove');
+
+// Promote
+await sock.groupParticipantsUpdate('group@s.whatsapp.net', ['628xxxx@s.whatsapp.net'], 'promote');
+
+// Demote
+await sock.groupParticipantsUpdate('group@s.whatsapp.net', ['628xxxx@s.whatsapp.net'], 'demote');
+
+// Subject
+await sock.groupUpdateSubject('group@s.whatsapp.net', 'New Name');
+
+// Description
+await sock.groupUpdateDescription('group@s.whatsapp.net', 'Description');
+
+// Invite code
+const code = await sock.groupInviteCode('group@s.whatsapp.net');
+await sock.groupAcceptInvite(code);
+
+// Leave
+await sock.groupLeave('group@s.whatsapp.net');
+
+// Metadata
+const meta = await sock.groupMetadata('group@s.whatsapp.net');</code></pre>
+                </div>
+
+                <h2>Newsletter</h2>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>javascript</span>
+                        <button onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>// ID from URL
+const id = await sock.newsletterId('https://newsletter.com/channel');
+
+// Follow
+await sock.newsletterFollow(id);
+
+// Unfollow
+await sock.newsletterUnfollow(id);
+
+// Mute/Unmute
+await sock.newsletterMute(id);
+await sock.newsletterUnmute(id);
+
+// Metadata
+const meta = await sock.newsletterMetadata('id', id);
+
+// Messages
+const msgs = await sock.newsletterFetchMessages('id', id, 10);
+
+// Send
+await sock.sendMessage(id, { text: 'Hello!' });
+
+// React
+await sock.newsletterReactMessage(id, serverId, '👍');
+
+// Create
+const newNL = await sock.newsletterCreate({ name: 'Channel', description: 'Desc' });</code></pre>
+                </div>
+
+                <h2>Profile</h2>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>javascript</span>
+                        <button onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>// Name
+await sock.updateProfileName('My Name');
+
+// Picture
+await sock.updateProfilePicture('628xxxx@s.whatsapp.net', { url: 'photo.jpg' });
+
+// Status
+await sock.updateProfileStatus('My status');
+
+// Picture URL
+const url = await sock.profilePictureUrl('628xxxx@s.whatsapp.net');
+
+// Block/Unblock
+await sock.updateBlockStatus('628xxxx@s.whatsapp.net', 'block');
+await sock.updateBlockStatus('628xxxx@s.whatsapp.net', 'unblock');
+
+// Blocklist
+const list = await sock.fetchBlocklist();</code></pre>
+                </div>
+
+                <h2>Privacy</h2>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>javascript</span>
+                        <button onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>// Get settings
+const privacy = await sock.fetchPrivacySettings();
+
+// Update (values: 'all', 'contacts', 'none')
+await sock.updateLastSeenPrivacy('all');
+await sock.updateOnlinePrivacy('all');
+await sock.updateProfilePicturePrivacy('all');
+await sock.updateStatusPrivacy('all');
+await sock.updateReadReceiptsPrivacy('all');
+await sock.updateGroupsAddPrivacy('all');</code></pre>
+                </div>
+
+                <h2>Business</h2>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>javascript</span>
+                        <button onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>// Profile
+const biz = await sock.getBusinessProfile('628xxxx@s.whatsapp.net');
+
+// Catalog
+const catalog = await sock.getCatalog({ jid: '628xxxx@s.whatsapp.net' });
+
+// Collections
+const collections = await sock.getCollections('628xxxx@s.whatsapp.net');
+
+// Order
+const order = await sock.getOrderDetails(orderId);</code></pre>
+                </div>
+
+                <h2>Presence</h2>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>javascript</span>
+                        <button onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>// Subscribe
+sock.presenceSubscribe('628xxxx@s.whatsapp.net');
+
+// Update
+await sock.sendPresenceUpdate('available');
+await sock.sendPresenceUpdate('composing', '628xxxx@s.whatsapp.net');
+await sock.sendPresenceUpdate('recording', '628xxxx@s.whatsapp.net');
+await sock.sendPresenceUpdate('paused', '628xxxx@s.whatsapp.net');
+
+// Listen
+sock.ev.on('presence.update', ({ id, presences }) => {
+    console.log(id, presences);
+});</code></pre>
+                </div>
+
+                <h2>Chat</h2>
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>javascript</span>
+                        <button onclick="copyCode(this)">Copy</button>
+                    </div>
+                    <pre><code>// Archive
+await sock.chatModify({ archive: true }, '628xxxx@s.whatsapp.net');
+
+// Pin
+await sock.chatModify({ pin: true }, '628xxxx@s.whatsapp.net');
+
+// Mute (seconds)
+await sock.chatModify({ mute: 3600 }, '628xxxx@s.whatsapp.net');
+
+// Delete
+await sock.chatModify({ delete: true }, '628xxxx@s.whatsapp.net');
+
+// Star
+await sock.star('628xxxx@s.whatsapp.net', [msgId], true);
+
+// Labels
+await sock.addChatLabel('628xxxx@s.whatsapp.net', labelId);
+await sock.removeChatLabel('628xxxx@s.whatsapp.net', labelId);</code></pre>
+                </div>
+
+                <h2>Events</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>connection.update</code></td>
+                            <td>Connection state: { connection, qr, lastDisconnect }</td>
+                        </tr>
+                        <tr>
+                            <td><code>messages.upsert</code></td>
+                            <td>New messages: { messages, type }</td>
+                        </tr>
+                        <tr>
+                            <td><code>messages.update</code></td>
+                            <td>Message updates: [{ key, update }]</td>
+                        </tr>
+                        <tr>
+                            <td><code>presence.update</code></td>
+                            <td>Presence changes: { id, presences }</td>
+                        </tr>
+                        <tr>
+                            <td><code>chats.upsert</code></td>
+                            <td>New chats</td>
+                        </tr>
+                        <tr>
+                            <td><code>chats.update</code></td>
+                            <td>Chat updates</td>
+                        </tr>
+                        <tr>
+                            <td><code>contacts.upsert</code></td>
+                            <td>New contacts</td>
+                        </tr>
+                        <tr>
+                            <td><code>groups.update</code></td>
+                            <td>Group updates</td>
+                        </tr>
+                        <tr>
+                            <td><code>call</code></td>
+                            <td>Calls: [{ id, from, isVideo, isGroup }]</td>
+                        </tr>
+                        <tr>
+                            <td><code>creds.update</code></td>
+                            <td>Credentials updated</td>
+                        </tr>
+                        <tr>
+                            <td><code>newsletter.reaction</code></td>
+                            <td>Newsletter reactions</td>
+                        </tr>
+                        <tr>
+                            <td><code>blocklist.update</code></td>
+                            <td>Blocklist: { blocklist, type }</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2>Disconnect Reasons</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Code</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>connectionClosed</code></td><td>428</td></tr>
+                        <tr><td><code>connectionLost</code></td><td>408</td></tr>
+                        <tr><td><code>connectionReplaced</code></td><td>440</td></tr>
+                        <tr><td><code>timedOut</code></td><td>408</td></tr>
+                        <tr><td><code>loggedOut</code></td><td>401</td></tr>
+                        <tr><td><code>badSession</code></td><td>500</td></tr>
+                        <tr><td><code>restartRequired</code></td><td>515</td></tr>
+                        <tr><td><code>multideviceMismatch</code></td><td>411</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-brand">
+                <div class="logo">Socketon</div>
+                <p>WhatsApp API Library</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Docs</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="examples.html">Examples</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Bang Wilykun</p>
+        </div>
+    </footer>
+
+    <script src="assets/main.js"></script>
+</body>
+</html>
